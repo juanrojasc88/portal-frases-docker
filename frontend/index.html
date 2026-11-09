@@ -1,0 +1,159 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Frases - Grupo 9</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 30px;
+      color: #1e293b;
+    }
+
+    .contenedor {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px #0001;
+    }
+
+    h1 { color: #2563eb; }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      box-sizing: border-box;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      font-size: 15px;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover { background: #1d4ed8; }
+
+    .frase {
+      background: #eff6ff;
+      padding: 15px;
+      margin-top: 12px;
+      border-left: 4px solid #2563eb;
+      border-radius: 5px;
+    }
+
+    .autor {
+      color: #64748b;
+      font-size: 13px;
+    }
+
+    #mensaje { margin-top: 12px; }
+  </style>
+</head>
+
+<body>
+  <main class="contenedor">
+    <h1>Portal de Frases</h1>
+    <p>Proyecto de Integración Continua - Grupo 9</p>
+
+    <h2>Registrar una frase</h2>
+
+    <form id="formulario">
+      <textarea id="texto" placeholder="Escribe tu frase"
+        required></textarea>
+
+      <input id="autor" placeholder="Nombre del autor">
+
+      <button type="submit">Guardar frase</button>
+    </form>
+
+    <p id="mensaje" role="status"></p>
+
+    <h2>Frases registradas</h2>
+    <button type="button" onclick="cargarFrases()">
+      Actualizar frases
+    </button>
+
+    <div id="lista"></div>
+  </main>
+
+  <script>
+    const API = "/api/frases";
+
+    async function cargarFrases() {
+      const lista = document.getElementById("lista");
+      lista.replaceChildren();
+
+      try {
+        const respuesta = await fetch(API);
+
+        if (!respuesta.ok) {
+          throw new Error("Error al consultar frases");
+        }
+
+        const frases = await respuesta.json();
+
+        frases.forEach(frase => {
+          const tarjeta = document.createElement("div");
+          tarjeta.className = "frase";
+
+          const texto = document.createElement("p");
+          texto.textContent = frase.texto;
+
+          const autor = document.createElement("p");
+          autor.className = "autor";
+          autor.textContent = "Autor: " + frase.autor;
+
+          tarjeta.append(texto, autor);
+          lista.appendChild(tarjeta);
+        });
+      } catch (error) {
+        lista.textContent = "No se pudieron cargar las frases";
+      }
+    }
+
+    document.getElementById("formulario")
+      .addEventListener("submit", async evento => {
+        evento.preventDefault();
+
+        const texto = document.getElementById("texto").value;
+        const autor = document.getElementById("autor").value;
+
+        const mensaje = document.getElementById("mensaje");
+
+        try {
+          const respuesta = await fetch(API, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ texto, autor })
+          });
+
+          if (!respuesta.ok) {
+            throw new Error("No se pudo guardar la frase");
+          }
+
+          mensaje.textContent = "Frase guardada correctamente";
+          document.getElementById("formulario").reset();
+
+          await cargarFrases();
+        } catch (error) {
+          mensaje.textContent = error.message;
+        }
+      });
+
+    cargarFrases();
+  </script>
+</body>
+</html>

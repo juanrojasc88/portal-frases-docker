@@ -1,0 +1,13 @@
+{
+    "name": "portal-frases-backend",
+    "version": "1.0.0",
+    "description": "API REST del Portal de Frases",
+    "main": "server.js",
+    "scripts": {
+      "start": "node server.js"
+    },
+    "dependencies": {
+      "express": "4.21.2"
+    }
+  }
+  

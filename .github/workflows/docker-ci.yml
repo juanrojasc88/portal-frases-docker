@@ -1,0 +1,44 @@
+name: Docker CI - Portal de Frases
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  docker-build:
+    name: Validar aplicación Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v4
+
+      - name: Configurar Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Validar Docker Compose
+        run: docker compose config --quiet
+
+      - name: Construir imágenes
+        run: docker compose build
+
+      - name: Iniciar contenedores
+        run: docker compose up -d
+
+      - name: Verificar comunicación interna
+        run: |
+          for i in $(seq 1 20); do
+            if docker compose exec -T frontend wget -qO- http://backend:3000/api/health; then
+              exit 0
+            fi
+            sleep 3
+          done
+          exit 1
+
+      - name: Mostrar logs si falla
+        if: failure()
+        run: docker compose logs
+
+      - name: Detener contenedores
+        if: always()
+        run: docker compose down

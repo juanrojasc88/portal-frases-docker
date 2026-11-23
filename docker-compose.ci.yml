@@ -1,0 +1,32 @@
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: portal-frases-backend:ci
+    environment:
+      PORT: 3000
+      DATA_DIR: /app/data
+      NODE_ENV: test
+    volumes:
+      - frases_data:/app/data
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: portal-frases-frontend:ci
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  frases_data:

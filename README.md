@@ -50,3 +50,5 @@ GitHub Actions valida Docker Compose, construye las imágenes, inicia los servic
 ## Integrantes
 
 Grupo 9.
+
+Prueba de integracion continua automatica con Jenkins - 23/11/2026.
